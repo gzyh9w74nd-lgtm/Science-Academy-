@@ -9,9 +9,9 @@
         body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .hero { background: linear-gradient(135deg, #004e92, #000428); color: white; padding: 60px 0; text-align: center; margin-bottom: 30px; }
         .chat-container { max-width: 800px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; }
-        #chat-box { height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; border-radius: 10px; background-color: #fff; }
-        .user-msg { color: #004e92; font-weight: bold; margin-bottom: 10px; }
-        .ai-msg { color: #333; background-color: #f1f3f5; padding: 10px; border-radius: 10px; margin-bottom: 15px; line-height: 1.6; }
+        #chat-box { height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; border-radius: 10px; background-color: #fff; display: flex; flex-direction: column; }
+        .user-msg { align-self: flex-end; color: white; background-color: #004e92; padding: 10px 15px; border-radius: 15px 15px 0 15px; margin-bottom: 10px; max-width: 80%; }
+        .ai-msg { align-self: flex-start; color: #333; background-color: #f1f3f5; padding: 10px 15px; border-radius: 15px 15px 15px 0; margin-bottom: 15px; max-width: 80%; line-height: 1.6; }
         .footer { text-align: center; margin-top: 40px; padding: 20px; color: #6c757d; font-size: 0.9rem; }
     </style>
 </head>
@@ -29,36 +29,65 @@
         </div>
         <div class="input-group">
             <input type="text" id="user-input" class="form-control" placeholder="Ask about Molecular Orbitals, Calculus, or Biology...">
-            <button class="btn btn-primary" onclick="sendMessage()">Ask AI</button>
+            <button class="btn btn-primary" id="send-btn" onclick="sendMessage()">Ask AI</button>
         </div>
     </div>
 </div>
 
 <div class="footer">
     <p>&copy; 2026 Science Academy | Designed for advanced academic excellence</p>
-    <p>khalid akinola, future medical student</p>
+    <p>Khalid Akinola, future medical student</p>
 </div>
 
 <script>
     async function sendMessage() {
         const input = document.getElementById('user-input');
         const chatBox = document.getElementById('chat-box');
-        const message = input.value;
+        const sendBtn = document.getElementById('send-btn');
+        const message = input.value.trim();
+        
         if (!message) return;
 
+        // Disable button and input while waiting
+        sendBtn.disabled = true;
+        input.disabled = true;
+
+        // 1. Display User Message
         chatBox.innerHTML += `<div class="user-msg">You: ${message}</div>`;
         input.value = '';
-
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: message })
-        });
-        const data = await response.json();
-        chatBox.innerHTML += <div class="ai-msg">${data.response}</div>;
-
         chatBox.scrollTop = chatBox.scrollHeight;
+
+        try {
+            // 2. Fetch AI Response from your Render backend
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            });
+
+            if (!response.ok) throw new Error('Server issues');
+
+            const data = await response.json();
+            
+            // 3. Display AI Message
+            chatBox.innerHTML += `<div class="ai-msg">${data.response || "I'm processing that, please try again."}</div>`;
+        } catch (error) {
+            chatBox.innerHTML += `<div class="ai-msg">Error: Connection failed. Make sure your Render server is awake!</div>`;
+        } finally {
+            // Re-enable input and button
+            sendBtn.disabled = false;
+            input.disabled = false;
+            input.focus();
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
     }
+
+    // Allow pressing "Enter" to send
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
 </script>
 
 </body>
