@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Academy - Comprehensive Learning</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero { background: linear-gradient(135deg, #004e92, #000428); color: white; padding: 60px 0; text-align: center; margin-bottom: 30px; }
+        .chat-container { max-width: 800px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; }
+        #chat-box { height: 400px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; margin-bottom: 20px; border-radius: 10px; background-color: #fff; }
+        .user-msg { color: #004e92; font-weight: bold; margin-bottom: 10px; }
+        .ai-msg { color: #333; background-color: #f1f3f5; padding: 10px; border-radius: 10px; margin-bottom: 15px; line-height: 1.6; }
+        .footer { text-align: center; margin-top: 40px; padding: 20px; color: #6c757d; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>Science Academy</h1>
+    <p>Mastering Mathematics, Chemistry, Physics, and Biology</p>
+</div>
+
+<div class="container">
+    <div class="chat-container">
+        <div id="chat-box">
+            <div class="ai-msg">Welcome, scholar. Ask me any question about your science subjects to begin.</div>
+        </div>
+        <div class="input-group">
+            <input type="text" id="user-input" class="form-control" placeholder="Ask about Molecular Orbitals, Calculus, or Biology...">
+            <button class="btn btn-primary" onclick="sendMessage()">Ask AI</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&copy; 2026 Science Academy | Designed for advanced academic excellence</p>
+    <p>khalid akinola, future medical student</p>
+</div>
+
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const chatBox = document.getElementById('chat-box');
+        const message = input.value;
+        if (!message) return;
+
+        chatBox.innerHTML += `<div class="user-msg">You: ${message}</div>`;
+        input.value = '';
+
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        const data = await response.json();
+        chatBox.innerHTML += `<div class="ai-msg">${data.reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
