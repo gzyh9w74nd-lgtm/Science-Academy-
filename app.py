@@ -21,7 +21,7 @@ def chat():
     try:
         prompt = f"You are a master science tutor. Provide detailed, academic explanations for: {user_input}"
         response = model.generate_content(prompt)
-        return jsonify({"reply": response.text})
+        return jsonify({"response": response.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
